@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" 
+    android:stretchColumns="0,1,2">
+<View
+        android:layout_height="2dip"
+        android:background="#000000" />
+    <TableRow
+        android:id="@+id/tableRow1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/entry"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_span="3"
+            android:text="ear gefg aefbva ergbaerv afdv argf aefva ergfva eerg adfv aerg aefvaewrgadfvaregf erg erg aerg dcv ewrgae"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    </TableRow>
+<View
+        android:layout_height="1dip"
+        android:background="#000000" />
+    <TableRow
+        android:id="@+id/tableRow2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/paylas"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Paylaş" />
+
+        <Button
+            android:id="@+id/favori"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Favori" />
+
+        <LinearLayout
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/suser"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Suser"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/zaman"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="zaman" />
+
+        </LinearLayout>
+
+    </TableRow>
+
+</TableLayout>
