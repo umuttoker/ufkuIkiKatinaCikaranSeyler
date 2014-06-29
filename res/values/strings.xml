@@ -13,5 +13,7 @@
         
         
     </string-array>
+    <string name="help">Yardım</string>
+    <string name="new_game">Yeni Oyun</string>
 
 </resources>

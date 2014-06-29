@@ -1,10 +1,12 @@
 package com.hassSektor.ufkuikikatinacikaranseyler;
 
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.text.Html;
@@ -17,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class customAdapter extends BaseAdapter   implements OnClickListener {
     
@@ -27,14 +30,16 @@ public class customAdapter extends BaseAdapter   implements OnClickListener {
     public Resources res;
     entryModel tempValues=null;
     int i=0;
+    int sayfa;
      
     /*************  CustomAdapter Constructor *****************/
-    public customAdapter(Activity a, ArrayList d,Resources resLocal) {
+    public customAdapter(Activity a, ArrayList d,Resources resLocal,int c) {
          
            /********** Take passed values **********/
             activity = a;
             data=d;
             res = resLocal;
+            sayfa=c;
          
             /***********  Layout inflator to call external xml layout () ***********/
              inflater = ( LayoutInflater )activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -69,7 +74,7 @@ public class customAdapter extends BaseAdapter   implements OnClickListener {
     }
  
     /****** Depends upon data size called for each row , Create each ListView row *****/
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
          
         View vi = convertView;
         ViewHolder holder;
@@ -129,7 +134,31 @@ public class customAdapter extends BaseAdapter   implements OnClickListener {
             	  @Override
             	  public void onClick(View v)
             	   {
+            		  Context context =  v.getContext();
+            		  int duration = Toast.LENGTH_SHORT;
             		  
+            		  SharedPreferences mSharedPrefs = v.getContext().getSharedPreferences("ufkukatla",0);
+            			SharedPreferences.Editor mPrefsEditor = mSharedPrefs.edit();
+            			String favoriString = mSharedPrefs.getString("favori", "b");
+            			StringTokenizer st = new StringTokenizer(favoriString, ",");
+            			int[] savedList = new int[(favoriString!="b"?st.countTokens():0)+1];
+            			int i=0;
+            			if(favoriString!="b"){
+            			for (i = 0; i < st.countTokens(); i++) {
+            			    savedList[i] = Integer.parseInt(st.nextToken());
+            			    Toast toast = Toast.makeText(context, String.valueOf(savedList[i]), duration);
+            			    toast.show();
+            			}
+            			}
+            			savedList[i]=(sayfa-1)*10+position; 
+            			
+             			StringBuilder str = new StringBuilder();
+            			for (int j = 0; j < savedList.length; j++) {
+            			    str.append(savedList[j]).append(",");
+            			}
+            			mPrefsEditor.putString("favori", str.toString());
+            			
+            			mPrefsEditor.commit();
             		  
             	   }
             	});

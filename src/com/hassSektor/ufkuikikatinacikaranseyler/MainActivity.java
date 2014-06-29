@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -40,15 +41,20 @@ import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.PopupMenu;
+import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.TextView;
 import android.os.Build;
 
@@ -59,7 +65,7 @@ public class MainActivity extends FragmentActivity {
     public static  ArrayList<entryModel> CustomListViewValuesArr = new ArrayList<entryModel>();
     static Resources res;
     static JSONArray array;
-    DemoCollectionPagerAdapter mDemoCollectionPagerAdapter;
+    static DemoCollectionPagerAdapter mDemoCollectionPagerAdapter;
 
     
     private DrawerLayout mDrawerLayout;
@@ -73,7 +79,7 @@ public class MainActivity extends FragmentActivity {
     /**
      * The {@link android.support.v4.view.ViewPager} that will display the object collection.
      */
-    ViewPager mViewPager;
+    static ViewPager mViewPager;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -102,8 +108,22 @@ public class MainActivity extends FragmentActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
+//		getMenuInflater().inflate(R.menu.sayfa, menu);
+//		return true;
+        
+      
+        //SubMenu menu2 = menu.addSubMenu(Menu.NONE, 999, 2,"Sayfaya Git");
+		try{
+			menu.getItem(3);
+		}catch(IndexOutOfBoundsException e){
+			for (int i=1;i<677;i++){
+	        	menu.add(1, i, i, String.valueOf(i));
+	        }
+	        menu.setGroupCheckable(1,true,true);
+		}
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.sayfa, menu);
+        return true;
 	}
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
@@ -130,10 +150,16 @@ public class MainActivity extends FragmentActivity {
 		// Handle action bar item clicks here. The action bar will
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
-		}
+//		int id = item.getItemId();
+//		if (id == R.id.action_settings) {
+//			return true;
+//		}
+		
+		if (item.isChecked()) item.setChecked(false);
+        else item.setChecked(true);
+		if(item.getItemId()!=999)
+			mViewPager.setCurrentItem(item.getItemId()-1, true);
+		
 		return super.onOptionsItemSelected(item);
 	}
 
@@ -254,6 +280,7 @@ public class MainActivity extends FragmentActivity {
 				}
             }
             Bundle args = new Bundle();
+            args.putInt(DemoObjectFragment.ARG_SAYFA, (i+1));
             args.putParcelableArrayList(DemoObjectFragment.ARG_OBJECT,CustomListViewValuesArr); 
             fragment.setArguments(args);
             return fragment;
@@ -274,6 +301,7 @@ public class MainActivity extends FragmentActivity {
 	public static class DemoObjectFragment extends Fragment {		// sayfa oluþturuluyor
 
         public static final String ARG_OBJECT = "object";
+        public static final String ARG_SAYFA = "sayfa";
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -281,10 +309,77 @@ public class MainActivity extends FragmentActivity {
             View rootView = inflater.inflate(R.layout.listview_with_navigation_buttons, container, false);
             Bundle args = getArguments();
             
-            (( ListView )rootView.findViewById( R.id.listem )).setAdapter( new customAdapter( CustomListView, args.getParcelableArrayList(ARG_OBJECT),res ) );  // List defined in XML ( See Below )
+            (( ListView )rootView.findViewById( R.id.listem )).setAdapter( new customAdapter( CustomListView, args.getParcelableArrayList(ARG_OBJECT),res,args.getInt(ARG_SAYFA) ) );  // List defined in XML ( See Below )
+            TextView sayfa = (TextView)rootView.findViewById(R.id.sayfa);
+            sayfa.setText(args.getInt(ARG_SAYFA)+ "/676");
+            sayfa.setClickable(true);
+            
+            
+            ((Button)rootView.findViewById(R.id.ileri)).setOnClickListener(new OnClickListener()  	
+              {
+            	  @Override
+            	  public void onClick(View v)
+            	   {
+            		  int currentPage = mViewPager.getCurrentItem();
+            		    int totalPages = mViewPager.getAdapter().getCount();
+
+            		    int nextPage = currentPage+1;
+            		    if (nextPage >= totalPages) {
+            		        // We can't go forward anymore.
+            		        // Loop to the first page. If you don't want looping just
+            		        // return here.
+            		        nextPage = 0;
+            		    }
+
+            		    mViewPager.setCurrentItem(nextPage, true);
+            	   }
+            	});
+	        
+	        ((Button)rootView.findViewById(R.id.son)).setOnClickListener(new OnClickListener()  	
+            {
+          	  @Override
+          	  public void onClick(View v)
+          	   {
+          		    mViewPager.setCurrentItem(676, true);
+          	   }
+          	});
+	        
+	        ((Button)rootView.findViewById(R.id.geri)).setOnClickListener(new OnClickListener()  	
+            {
+          	  @Override
+          	  public void onClick(View v)
+          	   {
+          		int currentPage = mViewPager.getCurrentItem();
+          	    int totalPages = mViewPager.getAdapter().getCount();
+
+          	    int previousPage = currentPage-1;
+          	    if (previousPage < 0) {
+          	        previousPage = totalPages - 1;
+          	    }
+
+          	  mViewPager.setCurrentItem(previousPage, true);
+          	   }
+          	});
+	        
+	        ((Button)rootView.findViewById(R.id.ilk)).setOnClickListener(new OnClickListener()  	
+            {
+          	  @Override
+          	  public void onClick(View v)
+          	   {
+          		    mViewPager.setCurrentItem(0, true);
+          	   }
+          	});
+	        
 	        
             return rootView;
         }
     }
+	
+	
+	
+	public  void showPopup(View v) {
+		 openOptionsMenu();
+	}
+	
 }
 

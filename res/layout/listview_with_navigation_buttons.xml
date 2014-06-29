@@ -8,6 +8,63 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" 
             android:layout_weight="1"/>
-    
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="34dp" >
+
+        <Button
+            android:id="@+id/ilk"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/sayfa"
+            android:layout_alignParentTop="true"
+            android:layout_weight="1"
+            android:text="|&lt;" />
+
+        <Button
+            android:id="@+id/son"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:text=">|" />
+
+        <Button
+            android:id="@+id/geri"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="14dp"
+            android:layout_toRightOf="@+id/ilk"
+            android:text="&lt;&lt;" />
+
+        <TextView
+            android:id="@+id/sayfa"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/ileri"
+            android:layout_alignBottom="@+id/ileri"
+            android:layout_centerHorizontal="true"
+            android:onClick="showPopup"
+            android:text="Small Text"
+            android:textAlignment="center"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/ileri"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginRight="14dp"
+            android:layout_toLeftOf="@+id/son"
+            android:text=">>" />
+
+    </RelativeLayout>
 
 </LinearLayout>
