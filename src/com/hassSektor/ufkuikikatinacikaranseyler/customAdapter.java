@@ -134,20 +134,17 @@ public class customAdapter extends BaseAdapter   implements OnClickListener {
             	  @Override
             	  public void onClick(View v)
             	   {
-            		  Context context =  v.getContext();
-            		  int duration = Toast.LENGTH_SHORT;
             		  
             		  SharedPreferences mSharedPrefs = v.getContext().getSharedPreferences("ufkukatla",0);
             			SharedPreferences.Editor mPrefsEditor = mSharedPrefs.edit();
             			String favoriString = mSharedPrefs.getString("favori", "b");
             			StringTokenizer st = new StringTokenizer(favoriString, ",");
-            			int[] savedList = new int[(favoriString!="b"?st.countTokens():0)+1];
+            			int boy = st.countTokens();
+            			int[] savedList = new int[(favoriString!="b"?boy:0)+1];
             			int i=0;
             			if(favoriString!="b"){
-            			for (i = 0; i < st.countTokens(); i++) {
+            			for (i = 0; i < boy; i++) {
             			    savedList[i] = Integer.parseInt(st.nextToken());
-            			    Toast toast = Toast.makeText(context, String.valueOf(savedList[i]), duration);
-            			    toast.show();
             			}
             			}
             			savedList[i]=(sayfa-1)*10+position; 
@@ -157,7 +154,7 @@ public class customAdapter extends BaseAdapter   implements OnClickListener {
             			    str.append(savedList[j]).append(",");
             			}
             			mPrefsEditor.putString("favori", str.toString());
-            			
+            			//mPrefsEditor.remove("favori");      //keyi sil
             			mPrefsEditor.commit();
             		  
             	   }

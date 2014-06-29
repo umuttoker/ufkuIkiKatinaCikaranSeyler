@@ -6,6 +6,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.StringTokenizer;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,6 +24,7 @@ import android.app.Activity;
 import android.app.ActionBar;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -66,6 +68,8 @@ public class MainActivity extends FragmentActivity {
     static Resources res;
     static JSONArray array;
     static DemoCollectionPagerAdapter mDemoCollectionPagerAdapter;
+    String jsonFavs;
+    Bundle favoriler = new Bundle();
 
     
     private DrawerLayout mDrawerLayout;
@@ -133,7 +137,33 @@ public class MainActivity extends FragmentActivity {
         		
         	}
         	else if(position==1){
+        		Intent favs = new Intent(MainActivity.this,favoriler.class); //"com.hassSektor.ufkuikikatinacikaranseyler.FAVORILER"
+        		//favoriler.putString("favori", jsonFavs);
+        		SharedPreferences mSharedPrefs = getBaseContext().getSharedPreferences("ufkukatla",0);
+    			String favoriString = mSharedPrefs.getString("favori", "b");
+    			StringTokenizer st = new StringTokenizer(favoriString, ",");
+    			int boy = st.countTokens();
+    			int[] savedList = new int[(favoriString!="b"?boy:0)+1];
+    			int i=0;
+    			if(favoriString!="b"){
+    			for (i = 0; i < boy; i++) {
+    			    savedList[i] = Integer.parseInt(st.nextToken());
+    			}
+    			}
+    			JSONArray fvs = new JSONArray();
+    			for (int j=0;j<savedList.length;j++){
+    				JSONObject yeni= new JSONObject();
+					try {
+						yeni = array.getJSONObject(savedList[j]);
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+    				fvs.put(yeni);
+    			}
         		
+        		favs.putExtra("favori", fvs.toString());
+        		startActivity(favs);
         	}
         	else if(position==2){
         		
@@ -187,7 +217,8 @@ public class MainActivity extends FragmentActivity {
 			// TODO Auto-generated method stub
 			
 			try {
-				array = new JSONArray(loadJSONFromAsset());		// asset den çaðýrýlan json objesi json arrayine dönüþtürülüyor
+				jsonFavs = loadJSONFromAsset();
+				array = new JSONArray(jsonFavs);		// asset den çaðýrýlan json objesi json arrayine dönüþtürülüyor
 				
 			    
 			} catch (JSONException e) {
