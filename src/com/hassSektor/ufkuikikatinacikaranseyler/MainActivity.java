@@ -143,7 +143,7 @@ public class MainActivity extends FragmentActivity {
     			String favoriString = mSharedPrefs.getString("favori", "b");
     			StringTokenizer st = new StringTokenizer(favoriString, ",");
     			int boy = st.countTokens();
-    			int[] savedList = new int[(favoriString!="b"?boy:0)+1];
+    			int[] savedList = new int[(favoriString!="b"?boy:0)];
     			int i=0;
     			if(favoriString!="b"){
     			for (i = 0; i < boy; i++) {
@@ -340,7 +340,7 @@ public class MainActivity extends FragmentActivity {
             View rootView = inflater.inflate(R.layout.listview_with_navigation_buttons, container, false);
             Bundle args = getArguments();
             
-            (( ListView )rootView.findViewById( R.id.listem )).setAdapter( new customAdapter( CustomListView, args.getParcelableArrayList(ARG_OBJECT),res,args.getInt(ARG_SAYFA) ) );  // List defined in XML ( See Below )
+            (( ListView )rootView.findViewById( R.id.listem )).setAdapter( new customAdapter( CustomListView, args.getParcelableArrayList(ARG_OBJECT),res,args.getInt(ARG_SAYFA),"main" ) );  // List defined in XML ( See Below )
             TextView sayfa = (TextView)rootView.findViewById(R.id.sayfa);
             sayfa.setText(args.getInt(ARG_SAYFA)+ "/676");
             sayfa.setClickable(true);

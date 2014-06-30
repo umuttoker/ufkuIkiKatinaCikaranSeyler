@@ -10,6 +10,7 @@ import com.hassSektor.ufkuikikatinacikaranseyler.MainActivity.DemoCollectionPage
 import com.hassSektor.ufkuikikatinacikaranseyler.MainActivity.DemoObjectFragment;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.AsyncTask;
@@ -26,6 +27,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class favoriler extends FragmentActivity{
 
@@ -37,7 +39,8 @@ public class favoriler extends FragmentActivity{
     static JSONArray array;
     static DemoCollectionPagerAdapter mDemoCollectionPagerAdapter;
     static ViewPager mViewPager;
-	
+	static Context context ;
+
 	@Override
 	protected void onCreate(Bundle arg0) {
 		// TODO Auto-generated method stub
@@ -45,6 +48,7 @@ public class favoriler extends FragmentActivity{
 		setContentView(R.layout.activity_collection_demo);
 		Intent intent = getIntent();
         String jsonArray = intent.getStringExtra("favori");
+        context = getBaseContext();
 
         try {
              array = new JSONArray(jsonArray);
@@ -104,12 +108,15 @@ public class favoriler extends FragmentActivity{
 
         @Override
         public int getCount() {
-            return (int) Math.ceil(array.length()/10);
+        	double uzun = (double)array.length();
+        	double sonuc = uzun /10;
+        	int i=(int) Math.ceil(sonuc);
+            return i;
         }
 
         @Override
         public CharSequence getPageTitle(int position) {		// sayfa baþlýðý
-            return "Sayfa " + (position + 1);
+            return "Favori Sayfa " + (position + 1);
         }
     }
 	
@@ -124,9 +131,9 @@ public class favoriler extends FragmentActivity{
             View rootView = inflater.inflate(R.layout.listview_with_navigation_buttons, container, false);
             Bundle args = getArguments();
             
-            (( ListView )rootView.findViewById( R.id.listem )).setAdapter( new customAdapter( CustomListView, args.getParcelableArrayList(ARG_OBJECT),res,args.getInt(ARG_SAYFA) ) );  // List defined in XML ( See Below )
+            (( ListView )rootView.findViewById( R.id.listem )).setAdapter( new customAdapter( CustomListView, args.getParcelableArrayList(ARG_OBJECT),res,args.getInt(ARG_SAYFA),"fav" ) );  // List defined in XML ( See Below )
             TextView sayfa = (TextView)rootView.findViewById(R.id.sayfa);
-            sayfa.setText(args.getInt(ARG_SAYFA)+ "/"+String.valueOf(array.length()/10));
+            sayfa.setText(args.getInt(ARG_SAYFA)+ "/"+String.valueOf((int)Math.ceil((double)array.length()/10)));
             sayfa.setClickable(true);
             
             

@@ -3,6 +3,7 @@ package com.hassSektor.ufkuikikatinacikaranseyler;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+import android.R.bool;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -31,15 +32,17 @@ public class customAdapter extends BaseAdapter   implements OnClickListener {
     entryModel tempValues=null;
     int i=0;
     int sayfa;
+    String nerden;
      
     /*************  CustomAdapter Constructor *****************/
-    public customAdapter(Activity a, ArrayList d,Resources resLocal,int c) {
+    public customAdapter(Activity a, ArrayList d,Resources resLocal,int c, String str) {
          
            /********** Take passed values **********/
             activity = a;
             data=d;
             res = resLocal;
             sayfa=c;
+            nerden=str;
          
             /***********  Layout inflator to call external xml layout () ***********/
              inflater = ( LayoutInflater )activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -140,22 +143,49 @@ public class customAdapter extends BaseAdapter   implements OnClickListener {
             			String favoriString = mSharedPrefs.getString("favori", "b");
             			StringTokenizer st = new StringTokenizer(favoriString, ",");
             			int boy = st.countTokens();
+            			int yeni =(sayfa-1)*10+position;
+            			int temp;
+            				
+            			boolean var = false;
             			int[] savedList = new int[(favoriString!="b"?boy:0)+1];
             			int i=0;
             			if(favoriString!="b"){
-            			for (i = 0; i < boy; i++) {
-            			    savedList[i] = Integer.parseInt(st.nextToken());
+            			for (i = 0; i < (var==true?boy-1:boy); i++) {
+            				temp = Integer.parseInt(st.nextToken());
+            				if(temp==yeni && nerden.equals("main")){
+            					var=true;
+            					i--;
+            					continue;
+            				}
+            				else if(nerden.equals("fav") && i==yeni && var==false ){
+            					var=true;
+            					i--;
+            					continue;
+            				}
+            			    savedList[i] = temp;
             			}
             			}
-            			savedList[i]=(sayfa-1)*10+position; 
+            			if(!var)
+            				savedList[i]=yeni; 
+            			
+            			
+            			int duration = Toast.LENGTH_SHORT;
             			
              			StringBuilder str = new StringBuilder();
-            			for (int j = 0; j < savedList.length; j++) {
+            			for (int j = 0; j < (var==true?i:i+1); j++) {
             			    str.append(savedList[j]).append(",");
             			}
             			mPrefsEditor.putString("favori", str.toString());
             			//mPrefsEditor.remove("favori");      //keyi sil
             			mPrefsEditor.commit();
+
+            			if(var==true){
+                			Toast toast = Toast.makeText(v.getContext(), "Entry Favorilerden Kaldýrýldý!", duration);
+                			toast.show();
+            			}else{
+            				Toast toast = Toast.makeText(v.getContext(), "Entry Favorilere Eklendi!", duration);
+                			toast.show();
+            			}
             		  
             	   }
             	});
