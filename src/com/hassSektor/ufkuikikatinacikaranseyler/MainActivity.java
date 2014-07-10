@@ -70,7 +70,8 @@ public class MainActivity extends FragmentActivity {
     static DemoCollectionPagerAdapter mDemoCollectionPagerAdapter;
     String jsonFavs;
     Bundle favoriler = new Bundle();
-
+    static boolean sira = true;
+    static JSONArray fvs;
     
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
@@ -81,13 +82,15 @@ public class MainActivity extends FragmentActivity {
     private String[] mPlanetTitles;
 
     /**
-     * The {@link android.support.v4.view.ViewPager} that will display the object collection.
+     * The {@link android.support.v4.view.ViewPager} that will display the ob
+     * ject collection.
      */
     static ViewPager mViewPager;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_collection_demo);
+		sira = true; 
 		
         mTitle = mDrawerTitle = getTitle();
         mPlanetTitles = getResources().getStringArray(R.array.MenuList);
@@ -134,11 +137,17 @@ public class MainActivity extends FragmentActivity {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         	if(position==0){
+        		sira=true;
+        		mDemoCollectionPagerAdapter = new DemoCollectionPagerAdapter(getSupportFragmentManager());
+    			mViewPager = (ViewPager) findViewById(R.id.pager);
+    	        mViewPager.setAdapter(mDemoCollectionPagerAdapter);
+    	        mDrawerLayout.closeDrawers();
         		
         	}
         	else if(position==1){
-        		Intent favs = new Intent(MainActivity.this,favoriler.class); //"com.hassSektor.ufkuikikatinacikaranseyler.FAVORILER"
+        		//Intent favs = new Intent(MainActivity.this,favoriler.class); //"com.hassSektor.ufkuikikatinacikaranseyler.FAVORILER"
         		//favoriler.putString("favori", jsonFavs);
+        		sira = false;
         		SharedPreferences mSharedPrefs = getBaseContext().getSharedPreferences("ufkukatla",0);
     			String favoriString = mSharedPrefs.getString("favori", "b");
     			StringTokenizer st = new StringTokenizer(favoriString, ",");
@@ -150,7 +159,7 @@ public class MainActivity extends FragmentActivity {
     			    savedList[i] = Integer.parseInt(st.nextToken());
     			}
     			}
-    			JSONArray fvs = new JSONArray();
+    			fvs = new JSONArray();
     			for (int j=0;j<savedList.length;j++){
     				JSONObject yeni= new JSONObject();
 					try {
@@ -162,8 +171,12 @@ public class MainActivity extends FragmentActivity {
     				fvs.put(yeni);
     			}
         		
-        		favs.putExtra("favori", fvs.toString());
-        		startActivity(favs);
+    			mDemoCollectionPagerAdapter = new DemoCollectionPagerAdapter(getSupportFragmentManager());
+    			mViewPager = (ViewPager) findViewById(R.id.pager);
+    	        mViewPager.setAdapter(mDemoCollectionPagerAdapter);
+    	        mDrawerLayout.closeDrawers();
+        		//favs.putExtra("favori", fvs.toString());
+        		//startActivity(favs);
         	}
         	else if(position==2){
         		
@@ -191,6 +204,22 @@ public class MainActivity extends FragmentActivity {
 			mViewPager.setCurrentItem(item.getItemId()-1, true);
 		
 		return super.onOptionsItemSelected(item);
+	}
+
+
+	
+	@Override
+	public void onBackPressed() {
+		// TODO Auto-generated method stub
+		
+			if(sira==false){
+				sira=true;
+	    		mDemoCollectionPagerAdapter = new DemoCollectionPagerAdapter(getSupportFragmentManager());
+				mViewPager = (ViewPager) findViewById(R.id.pager);
+		        mViewPager.setAdapter(mDemoCollectionPagerAdapter);
+			}
+			else
+				super.onBackPressed();
 	}
 
 	/**
@@ -290,12 +319,14 @@ public class MainActivity extends FragmentActivity {
         public Fragment getItem(int i) {
             Fragment fragment = new DemoObjectFragment();
             CustomListViewValuesArr = new ArrayList<entryModel>();    // toplam entry sayýsý 6761
-            for (int i1 = (i*10); i1 < ((i+1)*10) && i1 < array.length(); i1++) {				//her sayfa için 10 entry hazýrlýyor
+            JSONArray konulmalik = new JSONArray();
+            konulmalik = sira==true?array:fvs;
+            for (int i1 = (i*10); i1 < ((i+1)*10) && i1 < konulmalik.length(); i1++) {				//her sayfa için 10 entry hazýrlýyor
                 JSONObject row;
                 final entryModel sched = new entryModel();
                 
 				try {
-					row = array.getJSONObject(i1);
+					row = konulmalik.getJSONObject(i1);
 				
                   /******* Firstly take data in model object ******/
                    sched.setEntry(row.getString("entry"));
@@ -320,12 +351,18 @@ public class MainActivity extends FragmentActivity {
         @Override
         public int getCount() {
             // For this contrived example, we have a 100-object collection.
+        	if(sira==true)
             return 676;
+        	else
+        		return (int)Math.ceil((double)fvs.length()/10);
         }
 
         @Override
         public CharSequence getPageTitle(int position) {		// sayfa baþlýðý
-            return "Sayfa " + (position + 1);
+        	if(sira==true)
+        		return "Sayfa " + (position + 1);
+        	else
+        		return "Favori Sayfa " + (position + 1);
         }
     }
 	
@@ -339,10 +376,13 @@ public class MainActivity extends FragmentActivity {
                 Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.listview_with_navigation_buttons, container, false);
             Bundle args = getArguments();
-            
-            (( ListView )rootView.findViewById( R.id.listem )).setAdapter( new customAdapter( CustomListView, args.getParcelableArrayList(ARG_OBJECT),res,args.getInt(ARG_SAYFA),"main" ) );  // List defined in XML ( See Below )
+            String nerden = sira==true?"main":"fav";
+            (( ListView )rootView.findViewById( R.id.listem )).setAdapter( new customAdapter( CustomListView, args.getParcelableArrayList(ARG_OBJECT),res,args.getInt(ARG_SAYFA),nerden ) );  // List defined in XML ( See Below )
             TextView sayfa = (TextView)rootView.findViewById(R.id.sayfa);
-            sayfa.setText(args.getInt(ARG_SAYFA)+ "/676");
+            if(sira==true)
+            	sayfa.setText(args.getInt(ARG_SAYFA)+ "/676");
+            else
+            	sayfa.setText(args.getInt(ARG_SAYFA)+ "/" +String.valueOf((int)Math.ceil((double)fvs.length()/10)));
             sayfa.setClickable(true);
             
             

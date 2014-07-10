@@ -1,15 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+    	android:layout_width="fill_parent"
+   	    android:layout_height="fill_parent"
+   	    android:background="@drawable/shadow"
+        android:orientation="vertical" >
+<TableLayout
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" 
-    android:stretchColumns="0,1,2">
-<View
-        android:layout_height="2dip"
-        android:background="#000000" />
+    android:layout_height="fill_parent"
+    android:background="@drawable/shadow"
+    android:stretchColumns="0,1,2" >
+
     <TableRow
         android:id="@+id/tableRow1"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+    	android:padding="5dp" >
 
         <TextView
             android:id="@+id/entry"
@@ -18,48 +23,57 @@
             android:layout_span="3"
             android:text="ear gefg aefbva ergbaerv afdv argf aefva ergfva eerg adfv aerg aefvaewrgadfvaregf erg erg aerg dcv ewrgae"
             android:textAppearance="?android:attr/textAppearanceMedium" />
-
     </TableRow>
-<View
+
+    <View
         android:layout_height="1dip"
         android:background="#000000" />
-    <TableRow
-        android:id="@+id/tableRow2"
+
+   <RelativeLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="#DFDFDF" >
 
-        <Button
+        <ImageButton
             android:id="@+id/paylas"
-            style="?android:attr/buttonStyleSmall"
+            style="?android:attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Paylaş" />
+            android:src="@drawable/ic_action_share" />
 
-        <Button
+        <ImageButton
             android:id="@+id/favori"
-            style="?android:attr/buttonStyleSmall"
+            style="?android:attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Favori" />
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/paylas"
+            android:src="@drawable/ic_action_not_important" />
 
-        <LinearLayout
-            android:orientation="vertical" >
+        <TextView
+            android:id="@+id/suser"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:paddingRight="5dp"
+            android:gravity="right"
+            android:text="Suser"
+            android:textAlignment="gravity"
+            android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/suser"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Suser"
-                android:textStyle="bold" />
+        <TextView
+            android:id="@+id/zaman"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/favori"
+            android:layout_alignParentRight="true"
+            android:paddingRight="5dp"
+            android:gravity="right"
+            android:text="zaman"
+            android:textAlignment="gravity" />
 
-            <TextView
-                android:id="@+id/zaman"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="zaman" />
-
-        </LinearLayout>
-
-    </TableRow>
+    </RelativeLayout>
 
 </TableLayout>
+    </LinearLayout>

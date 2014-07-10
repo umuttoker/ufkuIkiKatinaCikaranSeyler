@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 import android.R.bool;
+import android.R.drawable;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.net.Uri;
+import android.provider.ContactsContract.CommonDataKinds.Im;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -19,6 +21,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -71,8 +74,8 @@ public class customAdapter extends BaseAdapter   implements OnClickListener {
         public TextView entry;
         public TextView suser;
         public TextView zaman;
-        public Button paylas;
-        public Button favori;
+        public ImageButton paylas;
+        public ImageButton favori;
  
     }
  
@@ -94,8 +97,8 @@ public class customAdapter extends BaseAdapter   implements OnClickListener {
             holder.entry.setMovementMethod(LinkMovementMethod.getInstance());
             holder.suser=(TextView)vi.findViewById(R.id.suser);
             holder.zaman=(TextView)vi.findViewById(R.id.zaman);
-            holder.paylas=(Button)vi.findViewById(R.id.paylas);
-            holder.favori=(Button)vi.findViewById(R.id.favori);
+            holder.paylas=(ImageButton)vi.findViewById(R.id.paylas);
+            holder.favori=(ImageButton)vi.findViewById(R.id.favori);
              
            /************  Set holder with LayoutInflater ************/
             vi.setTag( holder );
@@ -186,8 +189,7 @@ public class customAdapter extends BaseAdapter   implements OnClickListener {
             				Toast toast = Toast.makeText(v.getContext(), "Entry Favorilere Eklendi!", duration);
                 			toast.show();
             			}
-            		  
-            	   }
+            		  }
             	});
               
               

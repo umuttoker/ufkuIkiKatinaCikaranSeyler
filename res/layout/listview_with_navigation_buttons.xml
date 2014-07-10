@@ -2,16 +2,22 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical" 
+    android:background="#EEEEEE">
     <ListView	
             android:id="@+id/listem"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" 
-            android:layout_weight="1"/>
+            android:layout_height="fill_parent"
+ 		    android:layout_width="fill_parent"
+            android:layout_weight="1"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="10dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"/>
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="34dp" >
+        android:layout_height="34dp" 
+        android:background="#33b5e5">
 
         <Button
             android:id="@+id/ilk"
