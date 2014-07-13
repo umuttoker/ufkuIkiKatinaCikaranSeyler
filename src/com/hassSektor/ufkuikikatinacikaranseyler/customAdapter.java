@@ -6,6 +6,7 @@ import java.util.StringTokenizer;
 import android.R.bool;
 import android.R.drawable;
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,15 +14,19 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.provider.ContactsContract.CommonDataKinds.Im;
 import android.text.Html;
+import android.text.Spannable;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,10 +40,12 @@ public class customAdapter extends BaseAdapter   implements OnClickListener {
     entryModel tempValues=null;
     int i=0;
     int sayfa;
+    int yaziBoyutu;
     String nerden;
+    boolean gece;
      
     /*************  CustomAdapter Constructor *****************/
-    public customAdapter(Activity a, ArrayList d,Resources resLocal,int c, String str) {
+    public customAdapter(Activity a, ArrayList d,Resources resLocal,int c, String str,int boyut, boolean geceModu) {
          
            /********** Take passed values **********/
             activity = a;
@@ -46,6 +53,8 @@ public class customAdapter extends BaseAdapter   implements OnClickListener {
             res = resLocal;
             sayfa=c;
             nerden=str;
+            yaziBoyutu=boyut;
+            gece=geceModu;
          
             /***********  Layout inflator to call external xml layout () ***********/
              inflater = ( LayoutInflater )activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -108,7 +117,7 @@ public class customAdapter extends BaseAdapter   implements OnClickListener {
          
         if(data.size()<=0)
         {
-            holder.entry.setText("Entry Yok!");
+            holder.entry.setText("Henüz Hiç Bir Favori Eklemediniz!");
              
         }
         else
@@ -120,17 +129,35 @@ public class customAdapter extends BaseAdapter   implements OnClickListener {
             /************  Set Model values in Holder elements ***********/
 
              holder.entry.setText( Html.fromHtml(tempValues.getEntry()));
+             holder.entry.setTextSize(yaziBoyutu);
              holder.suser.setText( tempValues.getSuser() );
               holder.zaman.setText(tempValues.getZaman());
               final String paylasim = tempValues.getEntryId();
+              final String biri = tempValues.getSuser();
+              if(gece){
+            	  ((RelativeLayout)vi.findViewById(R.id.altPanel)).setBackgroundColor(0XFF333333);
+            	  holder.paylas.setImageResource(R.drawable.ic_action_share_white);
+            	  holder.favori.setImageResource(R.drawable.ic_action_not_important_white);
+            	  holder.entry.setTextColor(0xFFC7C7C7);
+            	  holder.entry.setBackgroundColor(0xFF000000);
+            	  holder.suser.setTextColor(0xFFA2A2A2);
+            	  holder.zaman.setTextColor(0xFFA2A2A2);
+              }
               holder.paylas.setOnClickListener(new OnClickListener()  	//paylaþ butonu
               {
             	  @Override
             	  public void onClick(View v)
             	   {
-            		  Uri uri = Uri.parse("https://eksisozluk.com/entry/"+paylasim);
-            		  Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-            		  v.getContext().startActivity(intent);          
+ //           		  Uri uri = Uri.parse("https://eksisozluk.com/entry/"+paylasim);
+//            		  Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+//            		  v.getContext().startActivity(intent);         
+            		  
+            		  Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND); 
+            		    sharingIntent.setType("text/plain");
+            		    String shareBody ="https://eksisozluk.com/entry/"+paylasim;
+            		    sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Ufkunu Katla Aracýlýðýyla");
+            		    sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+            		    v.getContext().startActivity(Intent.createChooser(sharingIntent, "Share via"));
             	   }
             	});
               
@@ -144,9 +171,23 @@ public class customAdapter extends BaseAdapter   implements OnClickListener {
             		  SharedPreferences mSharedPrefs = v.getContext().getSharedPreferences("ufkukatla",0);
             			SharedPreferences.Editor mPrefsEditor = mSharedPrefs.edit();
             			String favoriString = mSharedPrefs.getString("favori", "b");
+            			int boyut = mSharedPrefs.getInt("entrySayisi", 10);
+            			int entrySayisi;
+            			switch (boyut) {
+            			case 0:entrySayisi=10;
+            				break;
+            			case 1:entrySayisi=25;
+            			break;
+            			case 2:entrySayisi=50;
+            			break;
+            			case 3:entrySayisi=100;
+            			break;
+            			default:entrySayisi=10;
+            				break;
+            			}
             			StringTokenizer st = new StringTokenizer(favoriString, ",");
             			int boy = st.countTokens();
-            			int yeni =(sayfa-1)*10+position;
+            			int yeni =(sayfa-1)*entrySayisi+position;
             			int temp;
             				
             			boolean var = false;
@@ -192,6 +233,16 @@ public class customAdapter extends BaseAdapter   implements OnClickListener {
             		  }
             	});
               
+              holder.suser.setOnClickListener(new OnClickListener()  	//susera git
+              {
+            	  @Override
+            	  public void onClick(View v)
+            	   {
+            		  Uri uri = Uri.parse("https://eksisozluk.com/biri/"+biri);
+            		  Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            		  v.getContext().startActivity(intent);          
+            	   }
+            	});
               
               
              vi.setOnClickListener(new OnItemClickListener( position ));
@@ -222,5 +273,6 @@ public class customAdapter extends BaseAdapter   implements OnClickListener {
 
             //sct.onItemClick(mPosition);
         }              
-    }  
+    }
+    
 }

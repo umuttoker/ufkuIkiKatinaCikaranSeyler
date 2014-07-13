@@ -2,20 +2,16 @@ package com.hassSektor.ufkuikikatinacikaranseyler;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.StringTokenizer;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.jsoup.Connection;
-import org.jsoup.Connection.Method;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
+
+
+
+
 
 
 
@@ -23,8 +19,10 @@ import org.jsoup.nodes.Element;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -37,6 +35,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.text.Html;
@@ -54,13 +53,17 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.os.Build;
+import android.os.StrictMode.VmPolicy;
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends FragmentActivity{
     ListView list;
     customAdapter adapter;
     public static  MainActivity CustomListView = null;
@@ -70,16 +73,33 @@ public class MainActivity extends FragmentActivity {
     static DemoCollectionPagerAdapter mDemoCollectionPagerAdapter;
     String jsonFavs;
     Bundle favoriler = new Bundle();
-    static boolean sira = true;
-    static JSONArray fvs;
     
-    private DrawerLayout mDrawerLayout;
+
+    static JSONArray konulmalik = new JSONArray();    //anasayfa ve favoriler için deðiþkenler
+    static JSONArray fvs;
+    static String nerden= "main";
+    static String baslik="Sayfa ";
+    static boolean favlar = false;
+    static boolean anasayfa = true;
+    static int sayfaSayisi=677;
+    static Context context;
+    static Boolean ayarlar=false;
+    
+    private DrawerLayout mDrawerLayout;			//sol menü
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
 
     private CharSequence mDrawerTitle;
     private CharSequence mTitle;
     private String[] mPlanetTitles;
+    
+    
+    static Boolean navi;				//tercihler için shared pref deðerleri 
+    static Boolean geceModu;
+	static int yaziBoyutu;
+	static int entrySayisi;
+	static int sonSayfa;
+	 
 
     /**
      * The {@link android.support.v4.view.ViewPager} that will display the ob
@@ -90,16 +110,44 @@ public class MainActivity extends FragmentActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_collection_demo);
-		sira = true; 
 		
         mTitle = mDrawerTitle = getTitle();
         mPlanetTitles = getResources().getStringArray(R.array.MenuList);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
+        
+        mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+        
         mDrawerList.setAdapter(new ArrayAdapter<String>(this,R.layout.drawer_list_item, mPlanetTitles));
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+        getActionBar().setHomeButtonEnabled(true);
+        setTitle(mPlanetTitles[0]);
+        
+        
+        mDrawerToggle = new ActionBarDrawerToggle(
+                this,                  /* host Activity */
+                mDrawerLayout,         /* DrawerLayout object */
+                R.drawable.ic_drawer,  /* nav drawer image to replace 'Up' caret */
+                R.string.drawer_open,  /* "open drawer" description for accessibility */
+                R.string.drawer_close  /* "close drawer" description for accessibility */
+                ) {
+            public void onDrawerClosed(View view) {
+                getActionBar().setTitle(mTitle);
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+
+            public void onDrawerOpened(View drawerView) {
+                getActionBar().setTitle(mDrawerTitle);
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+        };
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        mDrawerList.setItemChecked(0, true);
+        
+        context = getApplicationContext();
+        getPref();
 		new yukle().execute();				// assyntask json oblejsinin yuklenmesi için çaðýrýlýyor
-		
         
 		CustomListView = this;				// list view için oluþturuluyor
 		res =getResources();
@@ -120,72 +168,118 @@ public class MainActivity extends FragmentActivity {
         
       
         //SubMenu menu2 = menu.addSubMenu(Menu.NONE, 999, 2,"Sayfaya Git");
-		try{
-			menu.getItem(3);
-		}catch(IndexOutOfBoundsException e){
-			for (int i=1;i<677;i++){
+		if(sayfaSayisi!=menu.size()){
+		menu.removeGroup(1);
+			for (int i=1;i<=sayfaSayisi;i++){
 	        	menu.add(1, i, i, String.valueOf(i));
 	        }
 	        menu.setGroupCheckable(1,true,true);
-		}
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.sayfa, menu);
-        return true;
+		}
+		return true;
 	}
+	
+	
 
-    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+	
+	
+    @Override
+	protected boolean onPrepareOptionsPanel(View view, Menu menu) {
+		// TODO Auto-generated method stub
+    	if(sayfaSayisi!=menu.size()){
+    	menu.removeGroup(1);
+		for (int i=1;i<=sayfaSayisi;i++){
+        	menu.add(1, i, i, String.valueOf(i));
+        }
+        menu.setGroupCheckable(1,true,true);
+    MenuInflater inflater = getMenuInflater();
+    inflater.inflate(R.menu.sayfa, menu);
+    	}
+		return super.onPrepareOptionsPanel(view, menu);
+	}
+    
+    
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        // Pass any configuration change to the drawer toggls
+        mDrawerToggle.onConfigurationChanged(newConfig);
+    }
+
+
+
+
+
+	private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         	if(position==0){
-        		sira=true;
-        		mDemoCollectionPagerAdapter = new DemoCollectionPagerAdapter(getSupportFragmentManager());
-    			mViewPager = (ViewPager) findViewById(R.id.pager);
-    	        mViewPager.setAdapter(mDemoCollectionPagerAdapter);
+                mDrawerList.setItemChecked(position, true);
+                setTitle(mPlanetTitles[position]);
+        		myTurn(anasayfa);
+        		loadPage();
     	        mDrawerLayout.closeDrawers();
         		
         	}
         	else if(position==1){
-        		//Intent favs = new Intent(MainActivity.this,favoriler.class); //"com.hassSektor.ufkuikikatinacikaranseyler.FAVORILER"
-        		//favoriler.putString("favori", jsonFavs);
-        		sira = false;
-        		SharedPreferences mSharedPrefs = getBaseContext().getSharedPreferences("ufkukatla",0);
-    			String favoriString = mSharedPrefs.getString("favori", "b");
-    			StringTokenizer st = new StringTokenizer(favoriString, ",");
-    			int boy = st.countTokens();
-    			int[] savedList = new int[(favoriString!="b"?boy:0)];
-    			int i=0;
-    			if(favoriString!="b"){
-    			for (i = 0; i < boy; i++) {
-    			    savedList[i] = Integer.parseInt(st.nextToken());
-    			}
-    			}
-    			fvs = new JSONArray();
-    			for (int j=0;j<savedList.length;j++){
-    				JSONObject yeni= new JSONObject();
-					try {
-						yeni = array.getJSONObject(savedList[j]);
-					} catch (JSONException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-    				fvs.put(yeni);
-    			}
-        		
-    			mDemoCollectionPagerAdapter = new DemoCollectionPagerAdapter(getSupportFragmentManager());
-    			mViewPager = (ViewPager) findViewById(R.id.pager);
-    	        mViewPager.setAdapter(mDemoCollectionPagerAdapter);
+        		getFavs();
+    			sonSayfa=mViewPager.getCurrentItem();
+    	        mDrawerList.setItemChecked(position, true);
+    	        setTitle(mPlanetTitles[position]);
+        		myTurn(favlar);
+    			loadPage();
     	        mDrawerLayout.closeDrawers();
-        		//favs.putExtra("favori", fvs.toString());
-        		//startActivity(favs);
         	}
         	else if(position==2){
-        		
-        	}
-        	else if(position==3){
+        		sonSayfa=mViewPager.getCurrentItem();
+                mDrawerList.setItemChecked(position, true);
+                setTitle(mPlanetTitles[position]);
+        		mDrawerLayout.closeDrawers();
+        		ayarlar=true;
         	    startActivity(new Intent("com.hassSektor.ufkuikikatinacikaranseyler.AYARLAR"));
         	    
         	}
         }
+    }
+	
+	public void getFavs(){
+		SharedPreferences mSharedPrefs = getBaseContext().getSharedPreferences("ufkukatla",0);
+		String favoriString = mSharedPrefs.getString("favori", "b");
+		StringTokenizer st = new StringTokenizer(favoriString, ",");
+		int boy = st.countTokens();
+		int[] savedList = new int[(favoriString!="b"?boy:0)];
+		int i=0;
+		if(favoriString!="b"){
+		for (i = 0; i < boy; i++) {
+		    savedList[i] = Integer.parseInt(st.nextToken());
+		}
+		}
+		fvs = new JSONArray();
+		for (int j=0;j<savedList.length;j++){
+			JSONObject yeni= new JSONObject();
+			try {
+				yeni = array.getJSONObject(savedList[j]);
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			fvs.put(yeni);
+		}
+	}
+	
+	
+	@Override
+    public void setTitle(CharSequence title) {
+        mTitle = title;
+        getActionBar().setTitle(mTitle);
+    }
+	
+	@Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        mDrawerToggle.syncState();
     }
 	
 	@Override
@@ -197,7 +291,9 @@ public class MainActivity extends FragmentActivity {
 //		if (id == R.id.action_settings) {
 //			return true;
 //		}
-		
+		 if (mDrawerToggle.onOptionsItemSelected(item)) {
+	            return true;
+	        }
 		if (item.isChecked()) item.setChecked(false);
         else item.setChecked(true);
 		if(item.getItemId()!=999)
@@ -212,14 +308,17 @@ public class MainActivity extends FragmentActivity {
 	public void onBackPressed() {
 		// TODO Auto-generated method stub
 		
-			if(sira==false){
-				sira=true;
-	    		mDemoCollectionPagerAdapter = new DemoCollectionPagerAdapter(getSupportFragmentManager());
-				mViewPager = (ViewPager) findViewById(R.id.pager);
-		        mViewPager.setAdapter(mDemoCollectionPagerAdapter);
+			if(nerden=="fav"){
+				myTurn(anasayfa);
+	    		loadPage();
 			}
-			else
+			else{
+				SharedPreferences mSharedPrefs = context.getSharedPreferences("ufkukatla",0);
+    			SharedPreferences.Editor mPrefsEditor = mSharedPrefs.edit();
+    			mPrefsEditor.putInt("sonSayfa", mViewPager.getCurrentItem());
+    			mPrefsEditor.commit();
 				super.onBackPressed();
+			}
 	}
 
 	/**
@@ -268,9 +367,9 @@ public class MainActivity extends FragmentActivity {
 		@Override
 		protected void onPostExecute(Void result) {
 			// TODO Auto-generated method stub      
-			mDemoCollectionPagerAdapter = new DemoCollectionPagerAdapter(getSupportFragmentManager());
-			mViewPager = (ViewPager) findViewById(R.id.pager);
-	        mViewPager.setAdapter(mDemoCollectionPagerAdapter);
+
+			myTurn(anasayfa);
+			loadPage();
 			yuklen.dismiss();
 			super.onPostExecute(result);
 		}
@@ -319,9 +418,7 @@ public class MainActivity extends FragmentActivity {
         public Fragment getItem(int i) {
             Fragment fragment = new DemoObjectFragment();
             CustomListViewValuesArr = new ArrayList<entryModel>();    // toplam entry sayýsý 6761
-            JSONArray konulmalik = new JSONArray();
-            konulmalik = sira==true?array:fvs;
-            for (int i1 = (i*10); i1 < ((i+1)*10) && i1 < konulmalik.length(); i1++) {				//her sayfa için 10 entry hazýrlýyor
+            for (int i1 = (i*entrySayisi); i1 < ((i+1)*entrySayisi) && i1 < konulmalik.length(); i1++) {				//her sayfa için 10 entry hazýrlýyor
                 JSONObject row;
                 final entryModel sched = new entryModel();
                 
@@ -351,21 +448,78 @@ public class MainActivity extends FragmentActivity {
         @Override
         public int getCount() {
             // For this contrived example, we have a 100-object collection.
-        	if(sira==true)
-            return 676;
-        	else
-        		return (int)Math.ceil((double)fvs.length()/10);
+     
+        		return sayfaSayisi;
         }
 
         @Override
         public CharSequence getPageTitle(int position) {		// sayfa baþlýðý
-        	if(sira==true)
-        		return "Sayfa " + (position + 1);
-        	else
-        		return "Favori Sayfa " + (position + 1);
+        		return baslik + (position + 1);
         }
     }
 	
+	public void getPref(){
+		
+		SharedPreferences mSharedPrefs = context.getSharedPreferences("ufkukatla",0);
+		geceModu = mSharedPrefs.getBoolean("gece", false);
+		navi = mSharedPrefs.getBoolean("navigasyon", true);
+		yaziBoyutu = mSharedPrefs.getInt("yaziBoyutu", 15);
+		int key = mSharedPrefs.getInt("entrySayisi", 10);
+		sonSayfa = mSharedPrefs.getInt("sonSayfa", 0);
+		 
+		switch (key) {
+		case 0:entrySayisi=10;
+			break;
+		case 1:entrySayisi=25;
+		break;
+		case 2:entrySayisi=50;
+		break;
+		case 3:entrySayisi=100;
+		break;
+		default:entrySayisi=10;
+			break;
+		}
+	}
+	
+	
+	
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		//Toast.makeText(context, "geldik", Toast.LENGTH_SHORT).show();
+		SharedPreferences mSharedPrefs = getApplicationContext().getSharedPreferences("ufkukatla",0);
+		String tiklanan = mSharedPrefs.getString("ayarlardaMenu", "duz");
+		if(ayarlar){
+			ayarlar=false;
+			getPref();
+			if(!tiklanan.equals("duz")){
+			if(tiklanan.equals("anasayfa")){
+				myTurn(anasayfa);
+				setTitle(mPlanetTitles[0]);
+				mDrawerList.setItemChecked(0, true);
+			}
+			else if(tiklanan.equals("favoriler")){
+				myTurn(favlar);
+				setTitle(mPlanetTitles[1]);
+				mDrawerList.setItemChecked(1, true);
+			}
+			}
+			else if(nerden.equals("main")){
+				setTitle(mPlanetTitles[0]);
+				mDrawerList.setItemChecked(0, true);
+			}
+			else if(nerden.equals("fav")){
+				setTitle(mPlanetTitles[1]);
+				mDrawerList.setItemChecked(1, true);
+			}
+			
+			sayfaSayisi = (int)Math.ceil((double)konulmalik.length()/entrySayisi);
+			loadPage();
+		}
+
+		super.onResume();
+	}
+
 	public static class DemoObjectFragment extends Fragment {		// sayfa oluþturuluyor
 
         public static final String ARG_OBJECT = "object";
@@ -375,14 +529,20 @@ public class MainActivity extends FragmentActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.listview_with_navigation_buttons, container, false);
+            if(geceModu)
+            	((LinearLayout)rootView.findViewById(R.id.enarka)).setBackgroundColor(0xFF525252);
             Bundle args = getArguments();
-            String nerden = sira==true?"main":"fav";
-            (( ListView )rootView.findViewById( R.id.listem )).setAdapter( new customAdapter( CustomListView, args.getParcelableArrayList(ARG_OBJECT),res,args.getInt(ARG_SAYFA),nerden ) );  // List defined in XML ( See Below )
+
+            
+    		if(!navi){
+    		RelativeLayout tv = (RelativeLayout)rootView.findViewById(R.id.navigasyon);
+    		tv.setVisibility(View.GONE);
+    		}
+    	
+            
+            (( ListView )rootView.findViewById( R.id.listem )).setAdapter( new customAdapter( CustomListView, args.getParcelableArrayList(ARG_OBJECT),res,args.getInt(ARG_SAYFA),nerden,yaziBoyutu ,geceModu) );  // List defined in XML ( See Below )
             TextView sayfa = (TextView)rootView.findViewById(R.id.sayfa);
-            if(sira==true)
-            	sayfa.setText(args.getInt(ARG_SAYFA)+ "/676");
-            else
-            	sayfa.setText(args.getInt(ARG_SAYFA)+ "/" +String.valueOf((int)Math.ceil((double)fvs.length()/10)));
+            	sayfa.setText(args.getInt(ARG_SAYFA)+ "/" +String.valueOf(sayfaSayisi));
             sayfa.setClickable(true);
             
             
@@ -411,7 +571,7 @@ public class MainActivity extends FragmentActivity {
           	  @Override
           	  public void onClick(View v)
           	   {
-          		    mViewPager.setCurrentItem(676, true);
+          		    mViewPager.setCurrentItem(sayfaSayisi, true);
           	   }
           	});
 	        
@@ -446,11 +606,36 @@ public class MainActivity extends FragmentActivity {
         }
     }
 	
+	public void loadPage(){
+		mDemoCollectionPagerAdapter = new DemoCollectionPagerAdapter(getSupportFragmentManager());
+		mViewPager = (ViewPager) findViewById(R.id.pager);
+        mViewPager.setAdapter(mDemoCollectionPagerAdapter);
+        if(nerden!="fav")
+		mViewPager.setCurrentItem(sonSayfa);
+	}
 	
+	public void myTurn(boolean kim){
+		if(kim==true){
+			konulmalik = array;
+			nerden = "main";
+			baslik ="Sayfa ";
+		}else{
+			if(fvs==null)
+				getFavs();
+			konulmalik = fvs;
+			nerden = "fav";
+			baslik ="Favori Sayfa ";
+		}
+		sayfaSayisi = (int)Math.ceil((double)konulmalik.length()/entrySayisi);
+		if(sayfaSayisi==0)
+			sayfaSayisi=1;
+	}
 	
 	public  void showPopup(View v) {
 		 openOptionsMenu();
 	}
+	
+
 	
 }
 

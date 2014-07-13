@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/enarka"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" 
@@ -15,13 +16,15 @@
             android:paddingRight="10dp"/>
 
     <RelativeLayout
+        android:id="@+id/navigasyon"
         android:layout_width="match_parent"
         android:layout_height="34dp" 
-        android:background="#33b5e5">
+        android:background="#000000">
 
         <Button
             android:id="@+id/ilk"
-            style="?android:attr/buttonStyleSmall"
+            style="?android:attr/borderlessButtonStyle"
+            android:textColor="#fff"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/sayfa"
@@ -31,7 +34,8 @@
 
         <Button
             android:id="@+id/son"
-            style="?android:attr/buttonStyleSmall"
+            style="?android:attr/borderlessButtonStyle"
+            android:textColor="#fff"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
@@ -40,11 +44,12 @@
 
         <Button
             android:id="@+id/geri"
-            style="?android:attr/buttonStyleSmall"
+            style="?android:attr/borderlessButtonStyle"
+            android:textColor="#fff"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_marginLeft="14dp"
+            android:layout_marginLeft="0dp"
             android:layout_toRightOf="@+id/ilk"
             android:text="&lt;&lt;" />
 
@@ -55,6 +60,7 @@
             android:layout_alignBaseline="@+id/ileri"
             android:layout_alignBottom="@+id/ileri"
             android:layout_centerHorizontal="true"
+            android:textColor="#fff"
             android:onClick="showPopup"
             android:text="Small Text"
             android:textAlignment="center"
@@ -63,11 +69,12 @@
 
         <Button
             android:id="@+id/ileri"
-            style="?android:attr/buttonStyleSmall"
+            style="?android:attr/borderlessButtonStyle"
+            android:textColor="#fff"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_marginRight="14dp"
+            android:layout_marginRight="0dp"
             android:layout_toLeftOf="@+id/son"
             android:text=">>" />
 
