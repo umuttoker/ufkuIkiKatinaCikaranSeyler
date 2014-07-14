@@ -73,6 +73,7 @@ public class MainActivity extends FragmentActivity{
     static DemoCollectionPagerAdapter mDemoCollectionPagerAdapter;
     String jsonFavs;
     Bundle favoriler = new Bundle();
+    static byte[] buffer=null;
     
 
     static JSONArray konulmalik = new JSONArray();    //anasayfa ve favoriler için deðiþkenler
@@ -317,6 +318,7 @@ public class MainActivity extends FragmentActivity{
     			SharedPreferences.Editor mPrefsEditor = mSharedPrefs.edit();
     			mPrefsEditor.putInt("sonSayfa", mViewPager.getCurrentItem());
     			mPrefsEditor.commit();
+    			onTrimMemory(TRIM_MEMORY_COMPLETE);
 				super.onBackPressed();
 			}
 	}
@@ -347,7 +349,9 @@ public class MainActivity extends FragmentActivity{
 			try {
 				jsonFavs = loadJSONFromAsset();
 				array = new JSONArray(jsonFavs);		// asset den çaðýrýlan json objesi json arrayine dönüþtürülüyor
-				
+				buffer=null;
+				jsonFavs=null;
+				System.gc();
 			    
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
@@ -392,7 +396,7 @@ public class MainActivity extends FragmentActivity{
 
 	        int size = is.available();
 
-	        byte[] buffer = new byte[size];
+	        buffer = new byte[size];
 
 	        is.read(buffer);
 
